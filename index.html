@@ -15,8 +15,13 @@
       text-align: center;
       margin-bottom: 15px;
     }
-    #prompt {
-      font-size: 1.3em;
+    .block {
+      border-top: 2px solid #ccc;
+      margin-top: 30px;
+      padding-top: 20px;
+    }
+    #prompt, #ru_prompt {
+      font-size: 1.2em;
       margin-bottom: 10px;
     }
     input, button {
@@ -26,22 +31,34 @@
       margin: 8px 0;
       box-sizing: border-box;
     }
-    #feedback {
+    .feedback {
       font-weight: bold;
-      margin-top: 10px;
       min-height: 1.5em;
     }
   </style>
 </head>
 <body>
   <h1>Verbtrainer A1 – Präsens</h1>
-  <p id="prompt">Ich ____ (hassen)</p>
-  <input type="text" id="antwort" placeholder="Deine Antwort hier" autocomplete="off" />
-  <button onclick="prüfen()">Antwort prüfen</button>
-  <p id="feedback"></p>
-  <button onclick="nächsteAufgabe()">Nächste Aufgabe</button>
+
+  <div>
+    <p id="prompt">Ich ____ (hassen)</p>
+    <input type="text" id="antwort" placeholder="Deine Antwort hier" autocomplete="off" />
+    <button onclick="prüfen()">Antwort prüfen</button>
+    <p id="feedback" class="feedback"></p>
+    <button onclick="nächsteAufgabe()">Nächste Aufgabe</button>
+  </div>
+
+  <div class="block">
+    <h2>Übung: Russisch → Deutscher Infinitiv</h2>
+    <p id="ru_prompt">сидеть</p>
+    <input type="text" id="infinitiv_input" placeholder="Infinitiv auf Deutsch" autocomplete="off" />
+    <button onclick="prüfeInfinitiv()">Antwort prüfen</button>
+    <p id="infinitiv_feedback" class="feedback"></p>
+    <button onclick="nächsterInfinitiv()">Nächstes Wort</button>
+  </div>
 
   <script>
+    // Блок 1: Спряжение
     const daten = [
       { pronomen: "ich", verb: "hassen", form: "hasse" },
       { pronomen: "du", verb: "hassen", form: "hasst" },
@@ -49,108 +66,30 @@
       { pronomen: "wir", verb: "hassen", form: "hassen" },
       { pronomen: "ihr", verb: "hassen", form: "hasst" },
       { pronomen: "sie/Sie", verb: "hassen", form: "hassen" },
-
       { pronomen: "ich", verb: "reißen", form: "reiße" },
       { pronomen: "du", verb: "reißen", form: "reißt" },
       { pronomen: "er/sie/es", verb: "reißen", form: "reißt" },
       { pronomen: "wir", verb: "reißen", form: "reißen" },
       { pronomen: "ihr", verb: "reißen", form: "reißt" },
       { pronomen: "sie/Sie", verb: "reißen", form: "reißen" },
-
       { pronomen: "ich", verb: "reisen", form: "reise" },
       { pronomen: "du", verb: "reisen", form: "reist" },
       { pronomen: "er/sie/es", verb: "reisen", form: "reist" },
       { pronomen: "wir", verb: "reisen", form: "reisen" },
       { pronomen: "ihr", verb: "reisen", form: "reist" },
-      { pronomen: "sie/Sie", verb: "reisen", form: "reisen" },
-
-      { pronomen: "ich", verb: "boxen", form: "boxe" },
-      { pronomen: "du", verb: "boxen", form: "boxt" },
-      { pronomen: "er/sie/es", verb: "boxen", form: "boxt" },
-      { pronomen: "wir", verb: "boxen", form: "boxen" },
-      { pronomen: "ihr", verb: "boxen", form: "boxt" },
-      { pronomen: "sie/Sie", verb: "boxen", form: "boxen" },
-
-      { pronomen: "ich", verb: "mixen", form: "mixe" },
-      { pronomen: "du", verb: "mixen", form: "mixt" },
-      { pronomen: "er/sie/es", verb: "mixen", form: "mixt" },
-      { pronomen: "wir", verb: "mixen", form: "mixen" },
-      { pronomen: "ihr", verb: "mixen", form: "mixt" },
-      { pronomen: "sie/Sie", verb: "mixen", form: "mixen" },
-
-      { pronomen: "ich", verb: "schließen", form: "schließe" },
-      { pronomen: "du", verb: "schließen", form: "schließt" },
-      { pronomen: "er/sie/es", verb: "schließen", form: "schließt" },
-      { pronomen: "wir", verb: "schließen", form: "schließen" },
-      { pronomen: "ihr", verb: "schließen", form: "schließt" },
-      { pronomen: "sie/Sie", verb: "schließen", form: "schließen" },
-
-      { pronomen: "ich", verb: "heißen", form: "heiße" },
-      { pronomen: "du", verb: "heißen", form: "heißt" },
-      { pronomen: "er/sie/es", verb: "heißen", form: "heißt" },
-      { pronomen: "wir", verb: "heißen", form: "heißen" },
-      { pronomen: "ihr", verb: "heißen", form: "heißt" },
-      { pronomen: "sie/Sie", verb: "heißen", form: "heißen" },
-
-      { pronomen: "ich", verb: "reizen", form: "reize" },
-      { pronomen: "du", verb: "reizen", form: "reizt" },
-      { pronomen: "er/sie/es", verb: "reizen", form: "reizt" },
-      { pronomen: "wir", verb: "reizen", form: "reizen" },
-      { pronomen: "ihr", verb: "reizen", form: "reizt" },
-      { pronomen: "sie/Sie", verb: "reizen", form: "reizen" },
-
-      { pronomen: "ich", verb: "putzen", form: "putze" },
-      { pronomen: "du", verb: "putzen", form: "putzt" },
-      { pronomen: "er/sie/es", verb: "putzen", form: "putzt" },
-      { pronomen: "wir", verb: "putzen", form: "putzen" },
-      { pronomen: "ihr", verb: "putzen", form: "putzt" },
-      { pronomen: "sie/Sie", verb: "putzen", form: "putzen" },
-
-      { pronomen: "ich", verb: "heizen", form: "heize" },
-      { pronomen: "du", verb: "heizen", form: "heizt" },
-      { pronomen: "er/sie/es", verb: "heizen", form: "heizt" },
-      { pronomen: "wir", verb: "heizen", form: "heizen" },
-      { pronomen: "ihr", verb: "heizen", form: "heizt" },
-      { pronomen: "sie/Sie", verb: "heizen", form: "heizen" },
-
-      { pronomen: "ich", verb: "beweisen", form: "beweise" },
-      { pronomen: "du", verb: "beweisen", form: "beweist" },
-      { pronomen: "er/sie/es", verb: "beweisen", form: "beweist" },
-      { pronomen: "wir", verb: "beweisen", form: "beweisen" },
-      { pronomen: "ihr", verb: "beweisen", form: "beweist" },
-      { pronomen: "sie/Sie", verb: "beweisen", form: "beweisen" },
-
-      { pronomen: "ich", verb: "sitzen", form: "sitze" },
-      { pronomen: "du", verb: "sitzen", form: "sitzt" },
-      { pronomen: "er/sie/es", verb: "sitzen", form: "sitzt" },
-      { pronomen: "wir", verb: "sitzen", form: "sitzen" },
-      { pronomen: "ihr", verb: "sitzen", form: "sitzt" },
-      { pronomen: "sie/Sie", verb: "sitzen", form: "sitzen" },
-
-      { pronomen: "ich", verb: "sich setzen", form: "setze mich" },
-      { pronomen: "du", verb: "sich setzen", form: "setzt dich" },
-      { pronomen: "er/sie/es", verb: "sich setzen", form: "setzt sich" },
-      { pronomen: "wir", verb: "sich setzen", form: "setzen uns" },
-      { pronomen: "ihr", verb: "sich setzen", form: "setzt euch" },
-      { pronomen: "sie/Sie", verb: "sich setzen", form: "setzen sich" }
+      { pronomen: "sie/Sie", verb: "reisen", form: "reisen" }
     ];
-
     let index = 0;
-
     function anzeigen() {
       const aufgabe = daten[index];
-      document.getElementById("prompt").innerText =
-        `${aufgabe.pronomen} ____ (${aufgabe.verb})`;
+      document.getElementById("prompt").innerText = `${aufgabe.pronomen} ____ (${aufgabe.verb})`;
       document.getElementById("antwort").value = "";
       document.getElementById("feedback").innerText = "";
-      document.getElementById("antwort").focus();
     }
-
     function prüfen() {
       const eingabe = document.getElementById("antwort").value.trim().toLowerCase();
       const korrekt = daten[index].form.toLowerCase();
       const feedback = document.getElementById("feedback");
-
       if (eingabe === korrekt) {
         feedback.innerText = "✅ Richtig!";
         feedback.style.color = "green";
@@ -159,13 +98,37 @@
         feedback.style.color = "red";
       }
     }
-
     function nächsteAufgabe() {
       index = (index + 1) % daten.length;
       anzeigen();
     }
-
     anzeigen();
+
+    // Блок 2: Перевод инфинитива
+    const infinitive = [('ненавидеть', 'hassen'), ('рвать', 'reißen'), ('путешествовать', 'reisen'), ('боксировать', 'boxen'), ('смешивать', 'mixen'), ('закрывать', 'schließen'), ('называться', 'heißen'), ('привлекать', 'reizen'), ('чистить', 'putzen'), ('отапливать', 'heizen'), ('доказывать', 'beweisen'), ('сидеть', 'sitzen'), ('садиться', 'sich setzen')];
+    let ruIndex = 0;
+    function zeigeInfinitiv() {
+      document.getElementById("ru_prompt").innerText = infinitive[ruIndex][0];
+      document.getElementById("infinitiv_input").value = "";
+      document.getElementById("infinitiv_feedback").innerText = "";
+    }
+    function prüfeInfinitiv() {
+      const eingabe = document.getElementById("infinitiv_input").value.trim().toLowerCase();
+      const korrekt = infinitive[ruIndex][1].toLowerCase();
+      const feedback = document.getElementById("infinitiv_feedback");
+      if (eingabe === korrekt) {
+        feedback.innerText = "✅ Richtig!";
+        feedback.style.color = "green";
+      } else {
+        feedback.innerText = `❌ Falsch. Richtig: ${infinitive[ruIndex][1]}`;
+        feedback.style.color = "red";
+      }
+    }
+    function nächsterInfinitiv() {
+      ruIndex = (ruIndex + 1) % infinitive.length;
+      zeigeInfinitiv();
+    }
+    zeigeInfinitiv();
   </script>
 </body>
 </html>
