@@ -1,225 +1,226 @@
+
 <!DOCTYPE html>
 <html lang="de">
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>Verbtrainer A1</title>
+  <title>Verbtrainer A1 Komplett</title>
   <style>
     body {
       font-family: Arial, sans-serif;
-      max-width: 500px;
+      max-width: 800px;
       margin: 20px auto;
       padding: 10px;
     }
-    h1 {
+    h1, h2 {
       text-align: center;
-      margin-bottom: 15px;
     }
-    .block {
-      border-top: 2px solid #ccc;
-      margin-top: 30px;
-      padding-top: 20px;
+    .menu {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: center;
+      gap: 10px;
+      margin-bottom: 20px;
     }
-    #prompt, #ru_prompt {
+    .menu button {
+      padding: 10px 15px;
+      font-size: 1em;
+      cursor: pointer;
+    }
+    .exercise {
+      display: none;
+    }
+    .active {
+      display: block;
+    }
+    .question, .feedback {
       font-size: 1.2em;
-      margin-bottom: 10px;
+      margin: 10px 0;
     }
     input, button {
-      width: 100%;
-      font-size: 1.1em;
-      padding: 10px;
-      margin: 8px 0;
-      box-sizing: border-box;
+      font-size: 1em;
+      padding: 8px;
+      margin: 5px 0;
     }
-    .feedback {
+    .correct {
+      color: green;
       font-weight: bold;
-      min-height: 1.5em;
+    }
+    .wrong {
+      color: red;
+      font-weight: bold;
     }
   </style>
 </head>
 <body>
-  <h1>Verbtrainer A1 – Präsens</h1>
+  <h1>Verbtrainer A1: Глаголы</h1>
 
-  <div>
-    <p id="prompt">Ich ____ (hassen)</p>
-    <input type="text" id="antwort" placeholder="Deine Antwort hier" autocomplete="off" />
-    <button onclick="prüfen()">Antwort prüfen</button>
-    <p id="feedback" class="feedback"></p>
-    <button onclick="nächsteAufgabe()">Nächste Aufgabe</button>
+  <div class="menu">
+    <button onclick="showExercise('conjugation')">1. Спряжение (ввод)</button>
+    <button onclick="showExercise('choice')">2. Выбор окончания</button>
+    <button onclick="showExercise('rutoinf')">3. Русский → инфинитив</button>
+    <button onclick="showExercise('flashcards')">4. Флешкарты</button>
   </div>
 
-  <div class="block">
-    <h2>Übung: Russisch → Deutscher Infinitiv</h2>
-    <p id="ru_prompt">сидеть</p>
-    <input type="text" id="infinitiv_input" placeholder="Infinitiv auf Deutsch" autocomplete="off" />
-    <button onclick="prüfeInfinitiv()">Antwort prüfen</button>
-    <p id="infinitiv_feedback" class="feedback"></p>
-    <button onclick="nächsterInfinitiv()">Nächstes Wort</button>
+  <!-- Упражнение 1: Спряжение -->
+  <div id="conjugation" class="exercise">
+    <h2>1. Впиши форму глагола</h2>
+    <p id="prompt1" class="question"></p>
+    <input type="text" id="input1" placeholder="Deine Antwort" autocomplete="off" />
+    <button onclick="check1()">Проверить</button>
+    <p id="feedback1" class="feedback"></p>
+    <button onclick="next1()">Следующее</button>
+  </div>
+
+  <!-- Упражнение 2: Выбор окончания -->
+  <div id="choice" class="exercise">
+    <h2>2. Выбери правильную форму</h2>
+    <p id="prompt2" class="question"></p>
+    <div id="options2"></div>
+    <p id="feedback2" class="feedback"></p>
+    <button onclick="next2()">Следующее</button>
+  </div>
+
+  <!-- Упражнение 3: Русский → Инфинитив -->
+  <div id="rutoinf" class="exercise">
+    <h2>3. Русский → Infinitiv</h2>
+    <p id="prompt3" class="question"></p>
+    <input type="text" id="input3" placeholder="Infinitiv" autocomplete="off" />
+    <button onclick="check3()">Проверить</button>
+    <p id="feedback3" class="feedback"></p>
+    <button onclick="next3()">Следующее</button>
+  </div>
+
+  <!-- Упражнение 4: Флешкарты -->
+  <div id="flashcards" class="exercise">
+    <h2>4. Флешкарты</h2>
+    <p id="card" class="question" onclick="flipCard()">👆 Нажми, чтобы перевернуть</p>
+    <button onclick="nextCard()">Следующая</button>
   </div>
 
   <script>
-    // Блок 1: Спряжение
-    const daten = [
-      { pronomen: "ich", verb: "hassen", form: "hasse" },
-      { pronomen: "du", verb: "hassen", form: "hasst" },
-      { pronomen: "er/sie/es", verb: "hassen", form: "hasst" },
-      { pronomen: "wir", verb: "hassen", form: "hassen" },
-      { pronomen: "ihr", verb: "hassen", form: "hasst" },
-      { pronomen: "sie/Sie", verb: "hassen", form: "hassen" },
-      { pronomen: "ich", verb: "reißen", form: "reiße" },
-      { pronomen: "du", verb: "reißen", form: "reißt" },
-      { pronomen: "er/sie/es", verb: "reißen", form: "reißt" },
-      { pronomen: "wir", verb: "reißen", form: "reißen" },
-      { pronomen: "ihr", verb: "reißen", form: "reißt" },
-      { pronomen: "sie/Sie", verb: "reißen", form: "reißen" },
-      { pronomen: "ich", verb: "reisen", form: "reise" },
-      { pronomen: "du", verb: "reisen", form: "reist" },
-      { pronomen: "er/sie/es", verb: "reisen", form: "reist" },
-      { pronomen: "wir", verb: "reisen", form: "reisen" },
-      { pronomen: "ihr", verb: "reisen", form: "reist" },
-      { pronomen: "sie/Sie", verb: "reisen", form: "reisen" },
-      { pronomen: "ich", verb: "boxen", form: "boxe" },
-      { pronomen: "du", verb: "boxen", form: "boxt" },
-      { pronomen: "er/sie/es", verb: "boxen", form: "boxt" },
-      { pronomen: "wir", verb: "boxen", form: "boxen" },
-      { pronomen: "ihr", verb: "boxen", form: "boxt" },
-      { pronomen: "sie/Sie", verb: "boxen", form: "boxen" },
-      { pronomen: "ich", verb: "mixen", form: "mixe" },
-      { pronomen: "du", verb: "mixen", form: "mixt" },
-      { pronomen: "er/sie/es", verb: "mixen", form: "mixt" },
-      { pronomen: "wir", verb: "mixen", form: "mixen" },
-      { pronomen: "ihr", verb: "mixen", form: "mixt" },
-      { pronomen: "sie/Sie", verb: "mixen", form: "mixen" },
-      { pronomen: "ich", verb: "schließen", form: "schließe" },
-      { pronomen: "du", verb: "schließen", form: "schließt" },
-      { pronomen: "er/sie/es", verb: "schließen", form: "schließt" },
-      { pronomen: "wir", verb: "schließen", form: "schließen" },
-      { pronomen: "ihr", verb: "schließen", form: "schließt" },
-      { pronomen: "sie/Sie", verb: "schließen", form: "schließen" },
-      { pronomen: "ich", verb: "heißen", form: "heiße" },
-      { pronomen: "du", verb: "heißen", form: "heißt" },
-      { pronomen: "er/sie/es", verb: "heißen", form: "heißt" },
-      { pronomen: "wir", verb: "heißen", form: "heißen" },
-      { pronomen: "ihr", verb: "heißen", form: "heißt" },
-      { pronomen: "sie/Sie", verb: "heißen", form: "heißen" },
-      { pronomen: "ich", verb: "reizen", form: "reize" },
-      { pronomen: "du", verb: "reizen", form: "reizt" },
-      { pronomen: "er/sie/es", verb: "reizen", form: "reizt" },
-      { pronomen: "wir", verb: "reizen", form: "reizen" },
-      { pronomen: "ihr", verb: "reizen", form: "reizt" },
-      { pronomen: "sie/Sie", verb: "reizen", form: "reizen" },
-      { pronomen: "ich", verb: "putzen", form: "putze" },
-      { pronomen: "du", verb: "putzen", form: "putzt" },
-      { pronomen: "er/sie/es", verb: "putzen", form: "putzt" },
-      { pronomen: "wir", verb: "putzen", form: "putzen" },
-      { pronomen: "ihr", verb: "putzen", form: "putzt" },
-      { pronomen: "sie/Sie", verb: "putzen", form: "putzen" },
-      { pronomen: "ich", verb: "heizen", form: "heize" },
-      { pronomen: "du", verb: "heizen", form: "heizt" },
-      { pronomen: "er/sie/es", verb: "heizen", form: "heizt" },
-      { pronomen: "wir", verb: "heizen", form: "heizen" },
-      { pronomen: "ihr", verb: "heizen", form: "heizt" },
-      { pronomen: "sie/Sie", verb: "heizen", form: "heizen" },
-      { pronomen: "ich", verb: "beweisen", form: "beweise" },
-      { pronomen: "du", verb: "beweisen", form: "beweist" },
-      { pronomen: "er/sie/es", verb: "beweisen", form: "beweist" },
-      { pronomen: "wir", verb: "beweisen", form: "beweisen" },
-      { pronomen: "ihr", verb: "beweisen", form: "beweist" },
-      { pronomen: "sie/Sie", verb: "beweisen", form: "beweisen" },
-      { pronomen: "ich", verb: "sitzen", form: "sitze" },
-      { pronomen: "du", verb: "sitzen", form: "sitzt" },
-      { pronomen: "er/sie/es", verb: "sitzen", form: "sitzt" },
-      { pronomen: "wir", verb: "sitzen", form: "sitzen" },
-      { pronomen: "ihr", verb: "sitzen", form: "sitzt" },
-      { pronomen: "sie/Sie", verb: "sitzen", form: "sitzen" },
-      { pronomen: "ich", verb: "sich setzen", form: "setze mich" },
-      { pronomen: "du", verb: "sich setzen", form: "setzt dich" },
-      { pronomen: "er/sie/es", verb: "sich setzen", form: "setzt sich" },
-      { pronomen: "wir", verb: "sich setzen", form: "setzen uns" },
-      { pronomen: "ihr", verb: "sich setzen", form: "setzt euch" },
-      { pronomen: "sie/Sie", verb: "sich setzen", form: "setzen sich" }
+    const verbs = [
+      ["ich", "hassen", "hasse"],
+      ["du", "reißen", "reißt"],
+      ["er/sie/es", "reisen", "reist"],
+      ["wir", "boxen", "boxen"],
+      ["ihr", "mixen", "mixt"],
+      ["sie/Sie", "schließen", "schließen"]
     ];
 
-    let index = 0;
-
-    function anzeigen() {
-      const aufgabe = daten[index];
-      document.getElementById("prompt").innerText =
-        `${aufgabe.pronomen} ____ (${aufgabe.verb})`;
-      document.getElementById("antwort").value = "";
-      document.getElementById("feedback").innerText = "";
-      document.getElementById("antwort").focus();
-    }
-
-    function prüfen() {
-      const eingabe = document.getElementById("antwort").value.trim().toLowerCase();
-      const korrekt = daten[index].form.toLowerCase();
-      const feedback = document.getElementById("feedback");
-
-      if (eingabe === korrekt) {
-        feedback.innerText = "✅ Richtig!";
-        feedback.style.color = "green";
-      } else {
-        feedback.innerText = `❌ Falsch. Richtig: ${daten[index].form}`;
-        feedback.style.color = "red";
-      }
-    }
-
-    function nächsteAufgabe() {
-      index = (index + 1) % daten.length;
-      anzeigen();
-    }
-
-    anzeigen();
-
-    // Второй блок — перевод с русского на немецкий инфинитив
-    const infinitive = [
+    const infs = [
       ["ненавидеть", "hassen"],
       ["рвать", "reißen"],
       ["путешествовать", "reisen"],
       ["боксировать", "boxen"],
       ["смешивать", "mixen"],
-      ["закрывать", "schließen"],
-      ["называться", "heißen"],
-      ["привлекать", "reizen"],
-      ["чистить", "putzen"],
-      ["отапливать", "heizen"],
-      ["доказывать", "beweisen"],
-      ["сидеть", "sitzen"],
-      ["садиться", "sich setzen"]
+      ["закрывать", "schließen"]
     ];
 
-    let ruIndex = 0;
-
-    function zeigeInfinitiv() {
-      // Показываем полное русское слово
-      document.getElementById("ru_prompt").innerText = infinitive[ruIndex][0];
-      document.getElementById("infinitiv_input").value = "";
-      document.getElementById("infinitiv_feedback").innerText = "";
-      document.getElementById("infinitiv_input").focus();
+    let index1 = 0;
+    function showExercise(id) {
+      document.querySelectorAll(".exercise").forEach(e => e.classList.remove("active"));
+      document.getElementById(id).classList.add("active");
+      if (id === "conjugation") show1();
+      if (id === "choice") show2();
+      if (id === "rutoinf") show3();
+      if (id === "flashcards") showCard();
     }
 
-    function prüfeInfinitiv() {
-      const eingabe = document.getElementById("infinitiv_input").value.trim().toLowerCase();
-      const korrekt = infinitive[ruIndex][1].toLowerCase();
-      const feedback = document.getElementById("infinitiv_feedback");
+    function show1() {
+      const v = verbs[index1];
+      document.getElementById("prompt1").innerText = `${v[0]} ____ (${v[1]})`;
+      document.getElementById("input1").value = "";
+      document.getElementById("feedback1").innerText = "";
+    }
 
-      if (eingabe === korrekt) {
-        feedback.innerText = "✅ Richtig!";
-        feedback.style.color = "green";
-      } else {
-        feedback.innerText = `❌ Falsch. Richtig: ${infinitive[ruIndex][1]}`;
-        feedback.style.color = "red";
+    function check1() {
+      const val = document.getElementById("input1").value.trim().toLowerCase();
+      const correct = verbs[index1][2].toLowerCase();
+      const fb = document.getElementById("feedback1");
+      fb.innerText = val === correct ? "✅ Правильно!" : `❌ Неправильно. Правильно: ${correct}`;
+      fb.className = val === correct ? "feedback correct" : "feedback wrong";
+    }
+
+    function next1() {
+      index1 = (index1 + 1) % verbs.length;
+      show1();
+    }
+
+    let index2 = 0;
+    function show2() {
+      const v = verbs[index2];
+      document.getElementById("prompt2").innerText = `${v[0]} ____ (${v[1]})`;
+      const correct = v[2];
+      const opts = shuffle([correct, correct + "t", correct.slice(0, -1)]);
+      const optDiv = document.getElementById("options2");
+      optDiv.innerHTML = "";
+      opts.forEach(opt => {
+        const btn = document.createElement("button");
+        btn.innerText = opt;
+        btn.onclick = () => check2(opt, correct);
+        optDiv.appendChild(btn);
+      });
+      document.getElementById("feedback2").innerText = "";
+    }
+
+    function check2(sel, correct) {
+      const fb = document.getElementById("feedback2");
+      fb.innerText = sel === correct ? "✅ Правильно!" : `❌ Неправильно. Правильно: ${correct}`;
+      fb.className = sel === correct ? "feedback correct" : "feedback wrong";
+    }
+
+    function next2() {
+      index2 = (index2 + 1) % verbs.length;
+      show2();
+    }
+
+    let index3 = 0;
+    function show3() {
+      document.getElementById("prompt3").innerText = infs[index3][0];
+      document.getElementById("input3").value = "";
+      document.getElementById("feedback3").innerText = "";
+    }
+
+    function check3() {
+      const val = document.getElementById("input3").value.trim().toLowerCase();
+      const correct = infs[index3][1].toLowerCase();
+      const fb = document.getElementById("feedback3");
+      fb.innerText = val === correct ? "✅ Правильно!" : `❌ Неправильно. Правильно: ${correct}`;
+      fb.className = val === correct ? "feedback correct" : "feedback wrong";
+    }
+
+    function next3() {
+      index3 = (index3 + 1) % infs.length;
+      show3();
+    }
+
+    // Флешкарты
+    let cardIndex = 0;
+    let flipped = false;
+    function showCard() {
+      flipped = false;
+      document.getElementById("card").innerText = infs[cardIndex][0];
+    }
+    function flipCard() {
+      const card = document.getElementById("card");
+      flipped = !flipped;
+      card.innerText = flipped ? infs[cardIndex][1] : infs[cardIndex][0];
+    }
+    function nextCard() {
+      cardIndex = (cardIndex + 1) % infs.length;
+      showCard();
+    }
+
+    function shuffle(array) {
+      for (let i = array.length - 1; i > 0; i--) {
+        const j = Math.floor(Math.random() * (i + 1));
+        [array[i], array[j]] = [array[j], array[i]];
       }
+      return array;
     }
 
-    function nächsterInfinitiv() {
-      ruIndex = (ruIndex + 1) % infinitive.length;
-      zeigeInfinitiv();
-    }
-
-    zeigeInfinitiv();
+    showExercise('conjugation');
   </script>
 </body>
 </html>
-
