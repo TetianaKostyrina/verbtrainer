@@ -113,17 +113,17 @@
       document.getElementById("infinitiv_feedback").innerText = "";
     }
     function prüfeInfinitiv() {
-      const eingabe = document.getElementById("infinitiv_input").value.trim().toLowerCase();
-      const korrekt = infinitive[ruIndex][1].toLowerCase();
-      const feedback = document.getElementById("infinitiv_feedback");
-      if (eingabe === korrekt) {
-        feedback.innerText = "✅ Richtig!";
-        feedback.style.color = "green";
-      } else {
-        feedback.innerText = `❌ Falsch. Richtig: ${infinitive[ruIndex][1]}`;
-        feedback.style.color = "red";
-      }
-    }
+  const eingabe = document.getElementById("infinitiv_input").value.trim().toLowerCase();
+  const korrekt = infinitive[ruIndex][1].toLowerCase();
+  const feedback = document.getElementById("infinitiv_feedback");
+  if (eingabe === korrekt) {
+    feedback.innerText = "✅ Richtig!";
+    feedback.style.color = "green";
+  } else {
+    feedback.innerText = `❌ Falsch. Richtig: ${infinitive[ruIndex][1]}`;
+    feedback.style.color = "red";
+  }
+}
     function nächsterInfinitiv() {
       ruIndex = (ruIndex + 1) % infinitive.length;
       zeigeInfinitiv();
