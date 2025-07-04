@@ -4,7 +4,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>Verbtrainer A1 Komplett</title>
+  <title>Verbtrainer A1 Komplett mit Abschluss</title>
   <style>
     body {
       font-family: Arial, sans-serif;
@@ -50,6 +50,12 @@
       color: red;
       font-weight: bold;
     }
+    .summary {
+      background: #f0f0f0;
+      border: 1px solid #ccc;
+      padding: 10px;
+      margin-top: 15px;
+    }
   </style>
 </head>
 <body>
@@ -62,36 +68,42 @@
     <button onclick="showExercise('flashcards')">4. Флешкарты</button>
   </div>
 
-  <!-- Упражнение 1: Спряжение -->
+  <!-- Упражнение 1 -->
   <div id="conjugation" class="exercise">
     <h2>1. Впиши форму глагола</h2>
     <p id="prompt1" class="question"></p>
-    <input type="text" id="input1" placeholder="Deine Antwort" autocomplete="off" />
+    <input type="text" id="input1" autocomplete="off" />
     <button onclick="check1()">Проверить</button>
     <p id="feedback1" class="feedback"></p>
     <button onclick="next1()">Следующее</button>
+    <button onclick="finish1()">Завершить</button>
+    <div id="summary1" class="summary" style="display:none;"></div>
   </div>
 
-  <!-- Упражнение 2: Выбор окончания -->
+  <!-- Упражнение 2 -->
   <div id="choice" class="exercise">
     <h2>2. Выбери правильную форму</h2>
     <p id="prompt2" class="question"></p>
     <div id="options2"></div>
     <p id="feedback2" class="feedback"></p>
     <button onclick="next2()">Следующее</button>
+    <button onclick="finish2()">Завершить</button>
+    <div id="summary2" class="summary" style="display:none;"></div>
   </div>
 
-  <!-- Упражнение 3: Русский → Инфинитив -->
+  <!-- Упражнение 3 -->
   <div id="rutoinf" class="exercise">
     <h2>3. Русский → Infinitiv</h2>
     <p id="prompt3" class="question"></p>
-    <input type="text" id="input3" placeholder="Infinitiv" autocomplete="off" />
+    <input type="text" id="input3" autocomplete="off" />
     <button onclick="check3()">Проверить</button>
     <p id="feedback3" class="feedback"></p>
     <button onclick="next3()">Следующее</button>
+    <button onclick="finish3()">Завершить</button>
+    <div id="summary3" class="summary" style="display:none;"></div>
   </div>
 
-  <!-- Упражнение 4: Флешкарты -->
+  <!-- Флешкарты -->
   <div id="flashcards" class="exercise">
     <h2>4. Флешкарты</h2>
     <p id="card" class="question" onclick="flipCard()">👆 Нажми, чтобы перевернуть</p>
@@ -117,7 +129,7 @@
       ["закрывать", "schließen"]
     ];
 
-    let index1 = 0;
+    let index1 = 0, score1 = 0;
     function showExercise(id) {
       document.querySelectorAll(".exercise").forEach(e => e.classList.remove("active"));
       document.getElementById(id).classList.add("active");
@@ -138,8 +150,14 @@
       const val = document.getElementById("input1").value.trim().toLowerCase();
       const correct = verbs[index1][2].toLowerCase();
       const fb = document.getElementById("feedback1");
-      fb.innerText = val === correct ? "✅ Правильно!" : `❌ Неправильно. Правильно: ${correct}`;
-      fb.className = val === correct ? "feedback correct" : "feedback wrong";
+      if (val === correct) {
+        score1++;
+        fb.innerText = "✅ Правильно!";
+        fb.className = "feedback correct";
+      } else {
+        fb.innerText = `❌ Неправильно. Правильно: ${correct}`;
+        fb.className = "feedback wrong";
+      }
     }
 
     function next1() {
@@ -147,7 +165,13 @@
       show1();
     }
 
-    let index2 = 0;
+    function finish1() {
+      document.getElementById("summary1").style.display = "block";
+      document.getElementById("summary1").innerHTML =
+        `Вы завершили упражнение.<br>Правильных ответов: <strong>${score1}</strong> из ${verbs.length}.<br>Сделайте скриншот и отправьте учителю.`;
+    }
+
+    let index2 = 0, score2 = 0;
     function show2() {
       const v = verbs[index2];
       document.getElementById("prompt2").innerText = `${v[0]} ____ (${v[1]})`;
@@ -166,8 +190,14 @@
 
     function check2(sel, correct) {
       const fb = document.getElementById("feedback2");
-      fb.innerText = sel === correct ? "✅ Правильно!" : `❌ Неправильно. Правильно: ${correct}`;
-      fb.className = sel === correct ? "feedback correct" : "feedback wrong";
+      if (sel === correct) {
+        score2++;
+        fb.innerText = "✅ Правильно!";
+        fb.className = "feedback correct";
+      } else {
+        fb.innerText = `❌ Неправильно. Правильно: ${correct}`;
+        fb.className = "feedback wrong";
+      }
     }
 
     function next2() {
@@ -175,7 +205,13 @@
       show2();
     }
 
-    let index3 = 0;
+    function finish2() {
+      document.getElementById("summary2").style.display = "block";
+      document.getElementById("summary2").innerHTML =
+        `Вы завершили упражнение.<br>Правильных ответов: <strong>${score2}</strong> из ${verbs.length}.<br>Сделайте скриншот и отправьте учителю.`;
+    }
+
+    let index3 = 0, score3 = 0;
     function show3() {
       document.getElementById("prompt3").innerText = infs[index3][0];
       document.getElementById("input3").value = "";
@@ -186,13 +222,25 @@
       const val = document.getElementById("input3").value.trim().toLowerCase();
       const correct = infs[index3][1].toLowerCase();
       const fb = document.getElementById("feedback3");
-      fb.innerText = val === correct ? "✅ Правильно!" : `❌ Неправильно. Правильно: ${correct}`;
-      fb.className = val === correct ? "feedback correct" : "feedback wrong";
+      if (val === correct) {
+        score3++;
+        fb.innerText = "✅ Правильно!";
+        fb.className = "feedback correct";
+      } else {
+        fb.innerText = `❌ Неправильно. Правильно: ${correct}`;
+        fb.className = "feedback wrong";
+      }
     }
 
     function next3() {
       index3 = (index3 + 1) % infs.length;
       show3();
+    }
+
+    function finish3() {
+      document.getElementById("summary3").style.display = "block";
+      document.getElementById("summary3").innerHTML =
+        `Вы завершили упражнение.<br>Правильных ответов: <strong>${score3}</strong> из ${infs.length}.<br>Сделайте скриншот и отправьте учителю.`;
     }
 
     // Флешкарты
